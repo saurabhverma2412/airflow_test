@@ -1,0 +1,40 @@
+
+default_stages: [commit, manual, push]
+exclude: '^$|.git_commit_template'
+repos:
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v2.2.3
+      hooks:
+          - id: trailing-whitespace
+          - id: end-of-file-fixer
+          - id: check-yaml
+          - id: check-json # Checks json file
+          - id: check-added-large-files
+            exclude: "^docs/"
+          - id: check-case-conflict
+          - id: check-merge-conflict
+          - id: debug-statements # `breakpoint()` calls
+          - id: requirements-txt-fixer
+          # - id: flake8
+    - repo: local
+      hooks:
+          - id: isort
+            name: "Sort imports"
+            language: system
+            types: [file, python]
+            entry: isort
+            stages: [commit, manual]
+          - id: black
+            name: "Black"
+            language: system
+            pass_filenames: false
+            entry: black src
+            stages: [commit, manual]
+            args: [--exclude=src/datasets/spark_dbfs_dataset.py]
+          - id: python-bandit-vulnerability-check
+            name: "Bandit vulnerability check"
+            entry: bandit
+            args: [-lll, --recursive, .]
+            language: system
+            files: ''
+            stages: [commit, manual]
